@@ -1,0 +1,155 @@
+---
+title: "Project"
+author: "Ramsai Jagadish 20243"
+date: "25/03/2021"
+output:
+  html_document: default
+  word_document: default
+editor_options:
+  chunk_output_type: inline
+---
+
+### Dataset: Australian weather report from 10years.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### packages loaded.
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(broom)
+```
+
+```{r}
+data <- read.csv("weatherAUS.csv")
+attach(data)
+dim(data) 
+data <- data[complete.cases(data),]
+sum(is.na(data))
+nrow(data)
+```
+### dataset loaded and NA values removed - 56420 rows.
+
+```{r}
+summary(data)
+str(data)
+names(data)
+```
+```{r}
+data[data$RainToday == "No",]$RainToday <- 0
+data[data$RainToday == "Yes",]$RainToday <- 1
+data[data$RainTomorrow == "Yes",]$RainTomorrow <- 1
+data[data$RainTomorrow == "No",]$RainTomorrow <- 0
+head(data)
+```
+```{r}
+data$RainToday <- as.integer(data$RainToday)
+data$RainTomorrow <- as.integer(data$RainTomorrow)
+str(data)
+```
+
+
+```{r}
+moddata <- read.csv("weatherAUS.csv")
+names(moddata)
+date <- as.Date(moddata$Date,"%d-%m-%y")
+fix(date)
+```
+
+```{r}
+#?plot()
+plot(moddata$MaxTemp ~ date,type="o",col="lightblue", axes=F)
+box()
+axis(1,date,format(date,"%d-%y"))
+```
+
+```{r}
+plot(moddata$Evaporation~date,type="o",col="blue",axes=F)
+box()
+axis(1,date,format(date,"%m-%y"))
+```
+
+
+
+### EDA
+
+## Mintemp vs Rainfall
+```{r}
+ggplot(data=data, aes(x = MinTemp ,y = Rainfall))+ geom_point()
+```
+
+## Maxtemp vs Rainfall
+```{r}
+ggplot(data=data, aes(x = MaxTemp ,y = Rainfall))+ geom_point()
+```
+
+## Evaporation vs Rainfall
+```{r}
+ggplot(data=data, aes(x = Evaporation ,y = Rainfall))+ geom_point()
+
+```
+
+## Windgustspeed vs Rainfall
+```{r}
+ggplot(data=data, aes(x = WindGustSpeed ,y = Rainfall))+ geom_point()
+```
+
+## Winspeed9am windspeed3pm vs rainfall
+```{r}
+ggplot(data=data, aes(x = WindSpeed9am ,y = Rainfall))+ geom_point()
+ggplot(data=data, aes(x = WindSpeed3pm ,y = Rainfall))+ geom_point()
+```
+
+## Humidity9am humdity3pm vs Rainfall
+```{r}
+ggplot(data=data, aes(x = Humidity9am ,y = Rainfall))+ geom_point()
+ggplot(data=data, aes(x = Humidity3pm ,y = Rainfall))+ geom_point()
+```
+
+## Pressure9am Pressure3pm vs Rainfall
+```{r}
+ggplot(data=data, aes(x = Pressure9am ,y = Rainfall))+ geom_point()
+ggplot(data=data, aes(x = Pressure3pm ,y = Rainfall))+ geom_point()
+```
+
+## cloud9am cloud3pm vs Rainfall
+```{r}
+ggplot(data=data, aes(x = Cloud9am ,y = Rainfall))+ geom_point()
+ggplot(data=data, aes(x = Cloud3pm ,y = Rainfall))+ geom_point()
+```
+
+## Temp9am Temp3pm vs Rainfall
+```{r}
+ggplot(data=data, aes(x = Temp9am ,y = Rainfall))+ geom_point()
+ggplot(data=data, aes(x = Temp3pm ,y = Rainfall))+ geom_point()
+```
+
+### outliers: Boxplot
+```{r}
+boxplot(MinTemp,MaxTemp, xlab="MinTemp and MaxTemp" ,ylab="span" ,col="lightblue")
+
+boxplot(WindSpeed9am,WindSpeed3pm,xlab="WindSpeed9am and WindSpeed3pm" ,ylab="span" ,col="lightblue")
+
+boxplot(Humidity9am,Humidity3pm ,xlab="Humidity9am and Humdity3pm" ,ylab="span" ,col="lightblue")
+
+boxplot(Pressure9am, Pressure3pm, xlab="Pressure9am and pressure3pm" ,ylab="span" ,col="lightblue")
+
+boxplot(Cloud9am,Cloud3pm, xlab="Cloud9am and Cloud3pm" ,ylab="span" ,col="lightblue")
+
+boxplot(Temp9am , Temp3pm ,xlab="temp9am and temp3pm" , ylab="span", col="lightblue")
+
+```
+
+## Correlation Plot
+```{r}
+corrdata <- subset( data, select = -c(Date,Location,WindGustDir,WindDir9am,WindDir3pm,RainToday,RainTomorrow ) )
+                            # removing unnecessary and categorical variables.
+head(corrdata)
+corrplot(cor(corrdata),
+  method = "pie",
+  type = "upper" # show only upper side
+)
+```
